@@ -55,6 +55,9 @@ class DinosaurTest extends TestCase
         yield '4 Meter Samll Dino' => [4, 'Small'];
     }
 
+    /**
+     * @return void
+     */
     public function testIsAcceptingVisitorsByDefault(): void
     {
         $dino = new Dinosaur(name: 'Paco');
@@ -62,11 +65,25 @@ class DinosaurTest extends TestCase
         self::assertTrue($dino->isAcceptingVisitors());
     }
 
-    public function testIsNotAcceptingVisitorsIfSick(): void
+    /**
+     * @dataProvider healthStatusProvide
+     *
+     * @return void
+     */
+    public function testIsAcceptingVisitorsBasedOnHealthStatus(HealthStatus $healthStatus, bool $expectedVisitorStatus): void
     {
         $dino = new Dinosaur(name: 'Juan');
-        $dino->setHealth(HealthStatus::SICK);
+        $dino->setHealth($healthStatus);
 
-        self::assertFalse($dino->isAcceptingVisitors());
+        self::assertSame($expectedVisitorStatus, $dino->isAcceptingVisitors());
+    }
+
+    /**
+     * @return Generator<string,array{enum(App\Enum\HealthStatus::SICK),bool}|array{enum(App\Enum\HealthStatus::HUNGRY),bool}>
+     */
+    public function healthStatusProvide(): \Generator
+    {
+        yield 'Sick dino is not accepting visitors' => [HealthStatus::SICK, false];
+        yield 'Hungry dino is accepting visitors' => [HealthStatus::HUNGRY, true];
     }
 }
